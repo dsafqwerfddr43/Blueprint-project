@@ -36,6 +36,11 @@ set_coin_drop_positions= [
     (200,200),
     (100,100),
     (150,100),
+    (750,750),
+    (800,750),
+    (40,750),
+    (800,900),
+    (750,300)
 ]
 
 backround=pygame.image.load("background.png")
@@ -106,10 +111,11 @@ def end_animation():
 for i in range(1, 4):
         spawn_coin()    #places down the coins 
 
+ground_height = 50
+ground = pygame.Rect(0, HEIGHT-300, 900, ground_height)
 
 
-
-
+velocity_y=0
 
 running=True # game loop
 clock = pygame.time.Clock() # sets the frame rate
@@ -119,7 +125,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    screen
+    screen.blit(backround,(0,0))
     # key controlls for the player 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -131,9 +137,11 @@ while running:
         animation_right()
 
     if keys[pygame.K_UP] and is_on_ground:  # Jump only if on the ground
-        player_y+= jump_power
+        velocity_y+= jump_power
         is_on_ground = False             #when jumping you cant jump again because not on ground
-    
+    velocity_y+=gravity
+    player_y+=velocity_y
+
 
     if player_y+64> HEIGHT:
         player_alive=False #when the player falls off the map
@@ -152,6 +160,13 @@ while running:
     for coin in coins:
         screen.blit(coin_image, (coin.x,coin.y))
 
+        #if the player collides with the ground
+    if player_rect.colliderect(ground):
+        # Only adjust if falling downward
+        if velocity_y > 0:
+            player_y = ground.top - player_height
+            velocity_y = 0
+            is_on_ground = True
 
 
     screen.blit(player_image, (player_x,player_y))
